@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:stable
+          image: ademolajoshua/eks-app:1.0
           ports:
             - containerPort: 80
           resources:
