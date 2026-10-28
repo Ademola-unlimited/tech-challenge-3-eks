@@ -109,6 +109,28 @@ This project improved my understanding of Kubernetes architecture, managed EKS i
 - `kubernetes/nginx-service.yaml` – Kubernetes Service manifest
 - `kubernetes/nginx-hpa.yaml` – Horizontal Pod Autoscaler manifest
 
+
+## Final Monitoring Results
+
+### Amazon CloudWatch Observability
+- Installed the Amazon CloudWatch Observability add-on.
+- Verified the add-on status was ACTIVE with no health issues.
+- Successfully deployed 3 CloudWatch Agent Pods.
+- Successfully deployed 3 Fluent Bit Pods.
+- Configured EKS Pod Identity with the CloudWatchAgentServerPolicy.
+- Verified Container Insights performance logs for all 3 worker nodes.
+
+### Application Verification
+- Confirmed Nginx deployment had 2/2 healthy replicas.
+- Verified the Nginx Service was accessible through port forwarding.
+- Successfully opened the Nginx welcome page at http://127.0.0.1:8080.
+- Verified HPA was configured with a 50% CPU target.
+- Confirmed minimum replicas of 2 and maximum replicas of 6.
+
+### Final Project Outcome
+Successfully deployed, scaled, accessed, and monitored
+a containerized application on Amazon EKS using Kubernetes,
+Horizontal Pod Autoscaler, CloudWatch, and EKS Pod Identity.
 ## Conclusion
 
 This project demonstrates practical DevOps skills in provisioning and managing a Kubernetes environment on AWS, maintaining application availability, monitoring resource utilization, and automating application scaling.
