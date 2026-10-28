@@ -1,0 +1,32 @@
+# AWS credentials and sensitive files
+.env
+.env.*
+*.pem
+*.key
+credentials
+.aws/
+
+# Kubernetes access configuration
+kubeconfig
+kubeconfig.*
+.kube/
+
+# Terraform temporary and state files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Kubernetes-generated exports
+nginx-deployment-export.yaml
+nginx-hpa-export.yaml
+
+# Operating system files
+.DS_Store
+Thumbs.db
