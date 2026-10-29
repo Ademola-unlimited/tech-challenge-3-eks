@@ -54,8 +54,9 @@ flowchart TD
     P --> CW["CloudWatch Container Insights"]
     N["EKS Worker Nodes"] --> P
     E["Amazon EKS Control Plane"] --> D
-    ```
-Request flow: A user accesses the external AWS Load Balancer. The Load Balancer forwards requests to the Kubernetes Service, which routes traffic to available application Pods. Each Pod runs the Docker image containing the custom Nginx webpage.
+```
+
+Request flow: A user accesses the external AWS Load Balancer.. The Load Balancer forwards requests to the Kubernetes Service, which routes traffic to available application Pods. Each Pod runs the Docker image containing the custom Nginx webpage.
 
 Scaling flow: Metrics Server supplies CPU measurements to the HPA. The HPA compares observed CPU utilization with the target and adjusts the desired replica count of the Deployment, subject to minimum and maximum limits.
 
