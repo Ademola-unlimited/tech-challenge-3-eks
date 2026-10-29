@@ -42,18 +42,18 @@ VS Code / Ubuntu on WSL2	Local development and terminal environment
 
 
 4. Architecture
-```mermaid
-flowchart TD
-    U[User / Browser] --> LB[AWS Load Balancer]
-    LB --> S[Kubernetes Service: eks-project]
-    S --> P[Helm-managed Nginx Pod(s)]
-    P --> I[Custom Docker image: ademolajoshua/eks-app:1.0]
-    H[Horizontal Pod Autoscaler] --> D[Kubernetes Deployment: eks-project]
+```flowchart TD
+    U["User / Browser"] --> LB["AWS Load Balancer"]
+    LB --> S["Kubernetes Service - eks-project"]
+    S --> P["Helm-managed Nginx Pods"]
+    P --> C["Docker Image - ademolajoshua/eks-app:1.0"]
+    H["Horizontal Pod Autoscaler"] --> D["Kubernetes Deployment - eks-project"]
     D --> P
-    M[Metrics Server] --> H
-    P --> C[CloudWatch Container Insights]
-    N[EKS Worker Nodes] --> P
-    E[Amazon EKS Control Plane] --> D
+    M["Metrics Server"] --> H
+    P --> CW["CloudWatch Container Insights"]
+    N["EKS Worker Nodes"] --> P
+    E["Amazon EKS Control Plane"] --> D
+    ...
 ```
 Request flow: A user accesses the external AWS Load Balancer. The Load Balancer forwards requests to the Kubernetes Service, which routes traffic to available application Pods. Each Pod runs the Docker image containing the custom Nginx webpage.
 
@@ -356,3 +356,82 @@ The most important lesson was that a correctly configured autoscaler does not ne
 Tech Challenge 3 demonstrates an end-to-end workflow for building, deploying, operating, and observing a containerized application on Amazon EKS. The final custom application was packaged with Docker, deployed with Helm, exposed through an AWS Load Balancer, monitored through Kubernetes and CloudWatch, and documented in GitHub.
 
 The project also includes a successful separate CPU-driven scaling demonstration and a transparent explanation of why the lightweight Helm-managed application did not scale during HTTP load testing. Together, these results demonstrate practical DevOps skills in Kubernetes operations, automation, troubleshooting, scalability, and monitoring.
+## Phase 7 – AWS Infrastructure Cleanup and Cost Management
+
+### Overview
+
+After successfully completing Tech Challenge 3, I performed a controlled cleanup of the AWS infrastructure used to deploy, scale, and monitor my containerized application on Amazon EKS.
+
+The objective was to prevent unnecessary AWS charges while preserving resources belonging to other projects.
+
+### Resources Cleaned Up
+
+| AWS Resource | Final Status | Explanation |
+|---|---|---|
+| Amazon EKS Cluster | Deleted | Removed the `enterprise-cluster` Kubernetes control plane. |
+| EKS Managed Node Group | Deleted | Removed the `standard-workers` worker node group and associated EC2 instances. |
+| Kubernetes Applications | Removed | Deleted project workloads and associated Kubernetes resources during cleanup. |
+| Helm Deployment | Removed | Removed the deployed application from the EKS environment. |
+| CloudWatch Container Insights Logs | Deleted | Removed the application, dataplane, host, and performance log groups. |
+| AWS Load Balancers | None remaining | Verified that no Elastic Load Balancers remained in `us-east-1`. |
+| NAT Gateways | None remaining | Verified that no active or deleting NAT gateways remained. |
+| Elastic IP Allocations | None remaining | Confirmed that no allocated Elastic IP addresses remained. |
+
+### Cleanup Verification
+
+I used AWS CLI commands to verify that the EKS cluster and associated infrastructure had been removed.
+
+```bash
+aws eks list-clusters --region us-east-1
+
+aws eks describe-cluster \
+  --name enterprise-cluster \
+  --region us-east-1
+
+aws elbv2 describe-load-balancers \
+  --region us-east-1
+
+aws ec2 describe-nat-gateways \
+  --region us-east-1
+
+aws logs describe-log-groups \
+  --region us-east-1 \
+  --log-group-name-prefix "/aws/containerinsights/enterprise-cluster"
+
+aws ec2 describe-addresses \
+  --region us-east-1
+```
+
+The `describe-cluster` command returned `ResourceNotFoundException`, confirming that the EKS cluster no longer existed.
+
+The remaining resource checks showed no matching Container Insights log groups, Load Balancers, NAT gateways in the checked states, or Elastic IP allocations.
+
+### Preserving Unrelated AWS Resources
+
+During the final verification, I identified a 30 GiB EBS volume attached to a stopped EC2 instance named `techpathway-jenkins-server`.
+
+I deliberately preserved this volume because it belongs to a separate Jenkins project, not Tech Challenge 3.
+
+This demonstrates the importance of identifying resource ownership before deleting cloud infrastructure.
+
+### Lessons Learned
+
+This cleanup process reinforced several important DevOps practices:
+
+1. **Cost management:** AWS resources can continue generating charges even after the main application or cluster has been deleted.
+2. **Resource verification:** Infrastructure deletion should always be confirmed using AWS CLI commands or the AWS Management Console.
+3. **Safe cleanup:** Resources should be identified by ownership, tags, and attachments before deletion.
+4. **Infrastructure lifecycle management:** A complete DevOps project includes provisioning, deployment, monitoring, scaling, documentation, and cleanup.
+5. **Operational responsibility:** Cloud engineers must balance reliability, security, and cost efficiency throughout the infrastructure lifecycle.
+
+### Final Project Outcome
+
+Tech Challenge 3 demonstrated practical experience with Docker, Amazon EKS, Kubernetes, Helm, Horizontal Pod Autoscaling, AWS IAM, CloudWatch monitoring, Git, and GitHub.
+
+The application was successfully deployed and accessed through an AWS Load Balancer. Kubernetes workloads were monitored, and Horizontal Pod Autoscaling was configured and verified.
+
+Following project completion, the EKS infrastructure was removed and key chargeable resources were checked to reduce unnecessary AWS costs.
+
+**Project Status:** Completed, documented, and EKS infrastructure cleaned up.
+
+**GitHub Repository:** https://github.com/Ademola-unlimited/tech-challenge-3-eks
